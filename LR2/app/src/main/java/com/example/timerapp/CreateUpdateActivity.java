@@ -22,6 +22,8 @@ import java.util.Random;
 
 public class CreateUpdateActivity extends AppCompatActivity {
 
+    private Repository _repository;
+
     ArrayList<ItemSet> settings = new ArrayList();
     EditSetAdapter adapter;
     boolean isEdit;
@@ -38,6 +40,8 @@ public class CreateUpdateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_update);
+
+        _repository = new Repository(this);
 
         button_save = (Button) findViewById(R.id.button_save);
         get_title = (EditText) findViewById(R.id.text_title);
@@ -60,10 +64,6 @@ public class CreateUpdateActivity extends AppCompatActivity {
         button_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SQLiteDatabase db = getBaseContext().openOrCreateDatabase("app.db", MODE_PRIVATE, null);
-                db.execSQL("CREATE TABLE IF NOT EXISTS timers (id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                           "title TEXT, warm_up INTEGER, workout INTEGER , rest INTEGER, cooldown INTEGER, cycle INTEGER, " +
-                           "set_t INTEGER, r_t INTEGER, g_t INTEGER, b_t INTEGER)");
                 String v0 = get_title.getText().toString();
                 String v1 = settings.get(0).length.toString();
                 String v2 = settings.get(1).length.toString();
@@ -77,22 +77,14 @@ public class CreateUpdateActivity extends AppCompatActivity {
                     v7 = Integer.toString(random.nextInt(256) - 1);
                     v8 = Integer.toString(random.nextInt(256) - 1);
                     v9 = Integer.toString(random.nextInt(256) - 1);
-                    db.execSQL("INSERT INTO timers (title, warm_up, workout, rest, cooldown, cycle, set_t, r_t, g_t, b_t) " +
-                               "VALUES ('" + v0 + "', " + v1 + ", " + v2 + ", " + v3 + ", " + v4 + ", " + v5 + ", " + v6 + ", " +
-                               v7 + ", " + v8 + ", " + v9 +" );");
+                    _repository.addTimer(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
+
                 }
                 else
                 {
                     String id = Integer.toString(timerSet.getId());
-                    v7 = Integer.toString(timerSet.getColor()[0]);
-                    v8 = Integer.toString(timerSet.getColor()[1]);
-                    v9 = Integer.toString(timerSet.getColor()[2]);
-                    db.execSQL("UPDATE timers SET " + "title = '" + v0 + "'," +
-                               "warm_up = " + v1 + ", workout = " + v2 + ", rest = " + v3 + ", cooldown = " + v4 + ", " +
-                               "cycle = " + v5 + ", set_t = " + v6 + ", " +
-                               "r_t = " + v7 + ", g_t = " + v8 + ", b_t = " + v9 +"  WHERE id = " + id + " ;");
+                    _repository.editTimer(id, v0, v1, v2, v3, v4, v5, v6);
                 }
-                db.close();
                 Toast.makeText(CreateUpdateActivity.this, "Saved", Toast.LENGTH_SHORT).show();
             }
 

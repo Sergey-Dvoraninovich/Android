@@ -19,6 +19,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class TimersListAdapter  extends ArrayAdapter<TimerSet> {
 
+    Repository _repository;
+
     private LayoutInflater inflater;
     private int layout;
     private ArrayList<TimerSet> timerList;
@@ -77,9 +79,8 @@ public class TimersListAdapter  extends ArrayAdapter<TimerSet> {
                 String id = Integer.toString(local_timer.getId());
                 timerList.remove(position);
                 notifyDataSetChanged();
-                SQLiteDatabase db = context.openOrCreateDatabase("app.db", MODE_PRIVATE, null);
-                db.execSQL("DELETE FROM timers WHERE id = " + id + ";");
-                db.close();
+                _repository = new Repository(context);
+                _repository.deleteTimer(id);
             }
         });
 

@@ -26,6 +26,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Repository _repository;
 
     ArrayList<TimerSet> timers = new ArrayList();
     TimersListAdapter adapter;
@@ -41,13 +42,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        _repository = new Repository(this);
+
         text = (TextView) findViewById(R.id.test_text);
         timersList = (ListView) findViewById(R.id.list_timer_sets);
         image_add = (ImageView) findViewById(R.id.image_add_timer);
+        text.setText("");
 
-        if(timers.size()==0){
-            setTimers();
-        }
+        timers = _repository.setTimers();
 
         adapter = new TimersListAdapter(this, R.layout.item_timer, timers);
         timersList.setAdapter(adapter);
@@ -74,8 +76,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        timers.removeAll(timers);
-        setTimers();
+        //timers.removeAll(timers);
+        //initialTimersSet();
+        timers = _repository.setTimers();
         TimersListAdapter new_adapter = new TimersListAdapter(this, R.layout.item_timer, timers);
         timersList.setAdapter(new_adapter);
     }
@@ -97,45 +100,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setTimers()
+    private void initialTimersSet()
     {
-        SQLiteDatabase db = getBaseContext().openOrCreateDatabase("app.db", MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS timers (id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                   "title TEXT, warm_up INTEGER, workout INTEGER , rest INTEGER, cooldown INTEGER, cycle INTEGER, set_t INTEGER, " +
-                   "r_t INTEGER, g_t INTEGER, b_t INTEGER)");
-
-        Cursor query = db.rawQuery("SELECT * FROM timers;", null);
         TextView textView = (TextView) findViewById(R.id.test_text);
         textView.setText("");
-        if(query.moveToFirst()){
-            do{
-                int id = query.getInt(0);
-                String name = query.getString(1);
-                int warm_up = query.getInt(2);
-                int workout = query.getInt(3);
-                int rest = query.getInt(4);
-                int cooldown = query.getInt(5);
-                int cycle = query.getInt(6);
-                int set_t = query.getInt(7);
-                int r_t = query.getInt(8);
-                int g_t = query.getInt(9);
-                int b_t = query.getInt(10);
-                TimerSet timer = new TimerSet(id, warm_up, workout, rest, cooldown, cycle, set_t);
-                timer.setColor(new int[] {r_t, g_t, b_t});
-                timer.setTitle(name);
-                timers.add(timer);
-            }
-            while(query.moveToNext());
-        }
-        query.close();
-        db.close();
-    }
-
-    private void dropTimers()
-    {
-        SQLiteDatabase db = getBaseContext().openOrCreateDatabase("app.db", MODE_PRIVATE, null);
-        db.execSQL("DROP TABLE IF EXISTS timers");
-        db.close();
+        timers = _repository.setTimers();
     }
 
 }

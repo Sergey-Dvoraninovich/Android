@@ -27,6 +27,8 @@ import androidx.preference.PreferenceFragmentCompat;
 
 public class ActivitySettings extends AppCompatActivity implements IDialogInteraction, IDialogUpdate{
 
+    Repository _repository;
+
     Button delete_all_button;
 
     @SuppressLint("ResourceType")
@@ -35,10 +37,8 @@ public class ActivitySettings extends AppCompatActivity implements IDialogIntera
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_settings);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings_frame, new MySettingsFragment())
-                .commit();
+
+        _repository = new Repository(this);
 
 
         delete_all_button = (Button) findViewById(R.id.button);
@@ -58,10 +58,8 @@ public class ActivitySettings extends AppCompatActivity implements IDialogIntera
 
     @Override
     public void remove(String name) {
-        Toast.makeText(this, "Will be deleted", Toast.LENGTH_SHORT).show();
-        SQLiteDatabase db = getBaseContext().openOrCreateDatabase("app.db", MODE_PRIVATE, null);
-        db.execSQL("DELETE FROM timers");
-        db.close();
+        _repository.deleteAllTimers();
+        Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
