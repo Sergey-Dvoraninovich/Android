@@ -14,8 +14,6 @@ public class SharedViewModel extends ViewModel {
         selected.setValue(s);
     }
 
-    public LiveData<String> getSelected() {
-        return selected;
-    }
+    public LiveData<String> getSelected() { return selected; }
 }
 

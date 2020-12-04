@@ -56,6 +56,11 @@ public class Conversion implements Serializable {
         return this.conv_kf[i][j] * value;
     }
 
+    public double Convert(int i, int j, double value)
+    {
+        return this.conv_kf[i][j] * value;
+    }
+
     public String[] getValues()
     {
         return this.values;

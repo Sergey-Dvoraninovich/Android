@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view){
         Intent i = new Intent(this, activity_weight.class);
 
-        ConversionViewModel model = new ViewModelProvider(this).get(ConversionViewModel.class);
         switch (view.getId()){
             case R.id.button_weignt:
                 this.conv = new Conversion(new String[] {getString(R.string.kilograms),

@@ -5,6 +5,7 @@ import android.R.layout;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import android.text.InputType;
@@ -17,9 +18,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import android.widget.Button;
 import android.widget.EditText;
 
+import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 
 import androidx.fragment.app.Fragment;
@@ -35,6 +39,17 @@ import androidx.lifecycle.ViewModelProvider;
  * create an instance of this fragment.
  */
 public class WeightFragment extends Fragment {
+
+    EditText line_top;
+    EditText line_down;
+    Spinner spinner_top;
+    Spinner spinner_down;
+
+    ConvViewModel convViewModel;
+    SharedViewModel sharedViewModel;
+
+    private ClipboardManager clipboardManager;
+    private ClipData clipData;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -82,62 +97,50 @@ public class WeightFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_weight, container, false);
 
-        final EditText line_top = (EditText) view.findViewById(R.id.textView_top);
+        convViewModel = new ViewModelProvider(requireActivity()).get(ConvViewModel.class);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        sharedViewModel.select("");
+
+        line_top = (EditText) view.findViewById(R.id.textView_top);
         line_top.setInputType(InputType.TYPE_NULL);
-        SaveViewModel model_string = new ViewModelProvider(requireActivity()).get(SaveViewModel.class);
-        model_string.getSelected().observe(getViewLifecycleOwner(), new Observer<String>() {
+        line_down = (EditText) view.findViewById(R.id.textView_down);
+        line_down.setInputType(InputType.TYPE_NULL);
+        spinner_top = (Spinner) view.findViewById(R.id.spinner_top);
+        spinner_down = (Spinner) view.findViewById(R.id.spinner_down);
+
+        convViewModel.getSelectedValue().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String value) {
                 line_top.setText(value);
             }
         });
 
-        final EditText line_down = (EditText) view.findViewById(R.id.textView_down);
-        line_down.setInputType(InputType.TYPE_NULL);
-
-        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        model.getSelected().observe(getViewLifecycleOwner(), new Observer<String>() {
+        sharedViewModel.getSelected().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String value) {
-                new_setConv(value);
+                setNewVal(value);
             }
         });
 
-        final Spinner spinner_top = (Spinner) view.findViewById(R.id.spinner_top);
-        ConversionViewModel model_conv = new ViewModelProvider(requireActivity()).get(ConversionViewModel.class);
-        model_conv.getSelected().observe(getViewLifecycleOwner(), new Observer<Conversion>() {
+        convViewModel.getSelectedSpinnerTop().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
-            public void onChanged(Conversion value) {
-                String[] values = value.getValues();
+            public void onChanged(Integer value) {
+                String[] values = convViewModel.conv.getValues();
                 ArrayAdapter<String> adapter_top = new ArrayAdapter<String>(requireActivity().getBaseContext(), layout.simple_spinner_item, values);// conv.getValues());
                 adapter_top.setDropDownViewResource(layout.simple_spinner_dropdown_item);
                 spinner_top.setAdapter(adapter_top);
-                SaveTopViewModel model_order_top = new ViewModelProvider(requireActivity()).get(SaveTopViewModel.class);
-                model_order_top.getSelected().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-                    @Override
-                    public void onChanged(Integer order) {
-                        spinner_top.setSelection(order);
-                    }
-                });
+                spinner_top.setSelection(value);
             }
         });
 
-        final Spinner spinner_down = (Spinner) view.findViewById(R.id.spinner_down);
-        ConversionViewModel model_conv_down = new ViewModelProvider(requireActivity()).get(ConversionViewModel.class);
-        model_conv_down.getSelected().observe(getViewLifecycleOwner(), new Observer<Conversion>() {
+        convViewModel.getSelectedSpinnerDown().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
-            public void onChanged(Conversion value) {
-                String[] values = value.getValues();
-                ArrayAdapter<String> adapter_down = new ArrayAdapter<String>(requireActivity().getBaseContext(), layout.simple_spinner_item, values);
+            public void onChanged(Integer value) {
+                String[] values = convViewModel.conv.getValues();
+                ArrayAdapter<String> adapter_down = new ArrayAdapter<String>(requireActivity().getBaseContext(), layout.simple_spinner_item, values);// conv.getValues());
                 adapter_down.setDropDownViewResource(layout.simple_spinner_dropdown_item);
                 spinner_down.setAdapter(adapter_down);
-                SaveDownViewModel model_order_down = new ViewModelProvider(requireActivity()).get(SaveDownViewModel.class);
-                model_order_down.getSelected().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-                    @Override
-                    public void onChanged(Integer order) {
-                        spinner_down.setSelection(order);
-                    }
-                });
+                spinner_down.setSelection(value);
             }
         });
 
@@ -146,42 +149,32 @@ public class WeightFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
-                new_setConv(null);
-                SaveTopViewModel model_order = new ViewModelProvider(requireActivity()).get(SaveTopViewModel.class);
-                model_order.select(position);
+                convViewModel.selectSpinnerTop(position);
+                line_down.setText(convViewModel.makeConversion(line_top.getText().toString()));
             }
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
+
         spinner_down.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
-                new_setConv(null);
-                SaveDownViewModel model_order = new ViewModelProvider(requireActivity()).get(SaveDownViewModel.class);
-                model_order.select(position);
+                convViewModel.selectSpinnerDown(position);
+                line_down.setText(convViewModel.makeConversion(line_top.getText().toString()));
             }
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
 
-
-
-
         return view;
     }
 
-    public void new_setConv(String item)
-    {
-        final EditText text_top = (EditText) requireView().findViewById(R.id.textView_top);
-        final EditText text_down = (EditText) requireView().findViewById(R.id.textView_down);
-        final Spinner spinner_top = (Spinner) requireView().findViewById(R.id.spinner_top);
-        final Spinner spinner_down = (Spinner) requireView().findViewById(R.id.spinner_down);
-
-        String line_value = text_top.getText().toString();
+    public void setNewVal(String item) {
+        String line_value = line_top.getText().toString();
         if (item != null) {
             if (!item.equals("|"))
                 line_value += item;
@@ -192,30 +185,8 @@ public class WeightFragment extends Fragment {
                 line_value = ans;
             }
         }
-
-        final String new_line_value = line_value;
-        ConversionViewModel model_conv_down = new ViewModelProvider(requireActivity()).get(ConversionViewModel.class);
-        model_conv_down.getSelected().observe(getViewLifecycleOwner(), new Observer<Conversion>() {
-            @Override
-            public void onChanged(Conversion value) {
-                double num;
-                String ans_text = "";
-                if (!new_line_value.equals("")) {
-                    try {
-                        num = Double.parseDouble(new_line_value);
-                        double ans = value.Convert(spinner_top.getSelectedItem().toString(), spinner_down.getSelectedItem().toString(), num);
-                        double ans_double = (double)Math.round(ans * 1000000);
-                        ans_double /= 1000000;
-                        ans_text = Double.toString(ans_double);
-
-                    } catch (Exception e) {
-                        ans_text = "";
-                    }
-                }
-                text_down.setText(ans_text);
-                SaveViewModel model_order = new ViewModelProvider(requireActivity()).get(SaveViewModel.class);
-                model_order.select(new_line_value);
-            }
-        });
+        line_top.setText(line_value);
+        String text_down = convViewModel.selectValue(line_value);
+        line_down.setText(text_down);
     }
 }
