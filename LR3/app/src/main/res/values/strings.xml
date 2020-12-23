@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">GameApp</string>
+    <string name="registration">Registrtion</string>
+    <string name="sign_in">Sign in</string>
+    <string name="mail">Mail</string>
+    <string name="password">Password</string>
+    <string name="signed_as">You signed in as </string>
+    <string name="start">Start</string>
+    <string name="sign_out">Sign out</string>
+    <string name="password_short">The password is too short</string>
+    <string name="fill_in_all">Fill in all fields</string>
+    <string name="start_new_game">Start new game</string>
+    <string name="join_existing_game">Join existing game</string>
+    <string name="enter_game_code">Enter game code</string>
+    <string name="game_code">Game code</string>
+    <string name="flip">Flip</string>
+    <string name="set">Set</string>
+    <string name="impossible_locate">Impossible to locate ship</string>
+    <string name="no_ship">No ships</string>
+    <string name="to_game">To game</string>
+    <string name="locate_all_ships">Locate all ships</string>
+    <string name="your_move">Your move</string>
+    <string name="rival_move">Rival move</string>
+    <string name="wait">Wait</string>
+    <string name="you_win">You win</string>
+    <string name="you_lose">You lose</string>
+    <string name="copy">Copy</string>
+    <string name="no_such_game">No such game</string>
+    <string name="game_already_started">Game already started</string>
+    <string name="upload_photo">Upload photo</string>
+    <string name="use_gravatar">Use gravatar</string>
+    <string name="save_name">Save name</string>
+    <string name="previous_game">Previous games</string>
+    <string name="no_second_user">There is no second user</string>
+    <string name="game_not_finished">Game not finished</string>
+</resources>
